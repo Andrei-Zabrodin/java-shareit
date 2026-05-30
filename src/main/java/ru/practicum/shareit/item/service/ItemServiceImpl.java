@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.OwnershipConflictException;
@@ -13,6 +14,7 @@ import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -33,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<Item> getItemsBySearch(String text) {
         if (text.isEmpty()) {
+            log.debug("Строка поиска пустая, возвращаем пустой список");
             return new ArrayList<>();
         }
 
@@ -50,8 +53,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item patchItem(Item item, long ownerId, long id) {
         userRepository.existsById(ownerId);
+        itemRepository.existsById(id);
 
-        if (getItemById(id).getOwnerId() != ownerId) {
+        long realOwnerId = getItemById(id).getOwnerId();
+        if (realOwnerId != ownerId) {
+            log.debug("Переданный id пользователя - {}  - не совпадает с владельца вещи - {}", ownerId, realOwnerId);
             throw new OwnershipConflictException("Вы не являетесь владельцем вещи с id" + id + "!");
         }
 

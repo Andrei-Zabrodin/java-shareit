@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class ItemRepositoryMem implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
     private long currentId = 0;
@@ -45,8 +47,9 @@ public class ItemRepositoryMem implements ItemRepository {
 
     @Override
     public Item patchItem(Item item, long id) {
-        Item oldItem = items.get(id);
+        log.debug("На обновление переданы следующие данные: {}", item.toString());
 
+        Item oldItem = items.get(id);
         Optional.ofNullable(item.getName()).ifPresent(oldItem::setName);
         Optional.ofNullable(item.getDescription()).ifPresent(oldItem::setDescription);
         Optional.ofNullable(item.getAvailable()).ifPresent(oldItem::setAvailable);
@@ -56,7 +59,10 @@ public class ItemRepositoryMem implements ItemRepository {
 
     @Override
     public void existsById(long id) {
+        log.debug("Проверка существования вещи с id: {}", id);
+
         if (!items.containsKey(id)) {
+            log.debug("Вещь с id: {} не найдена", id);
             throw new IdNotFoundException("Вещи с id " + id + " нет в базе!");
         }
     }

@@ -23,6 +23,8 @@ public class ItemController {
 
     @GetMapping
     public List<ResponseItemDto> getItems(@RequestHeader(OWNER_HEADER) long ownerId) {
+        log.info("GET /items – Запрос всех вещей пользователя с id: {}", ownerId);
+
         return itemService.getItems(ownerId).stream()
                 .map(itemMapper::convertToDto)
                 .toList();
@@ -30,11 +32,15 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ResponseItemDto getItemById(@PathVariable long id) {
+        log.info("GET /items/{} - Запрос вещи по id", id);
+
         return itemMapper.convertToDto(itemService.getItemById(id));
     }
 
     @GetMapping("/search")
     public List<ResponseItemDto> getItemsBySearch(@RequestParam String text) {
+        log.info("GET /items/search - Поиск доступных для аренды вещей по строке: '{}'", text);
+
         return itemService.getItemsBySearch(text).stream()
                 .map(itemMapper::convertToDto)
                 .toList();
@@ -43,7 +49,8 @@ public class ItemController {
     @PostMapping
     public ResponseItemDto postItem(@Valid @RequestBody RequestItemDto itemDto,
                              @RequestHeader(OWNER_HEADER) long ownerId) {
-        log.debug(itemDto.toString());
+        log.info("POST /items - Создание новой вещи: {}, id владельца: {}", itemDto.getName(), ownerId);
+
         Item postedItem = itemService.postItem(itemMapper.convertToEntity(itemDto), ownerId);
         return itemMapper.convertToDto(postedItem);
     }
@@ -52,6 +59,8 @@ public class ItemController {
     public ResponseItemDto patchItem(@RequestBody RequestItemDto itemDto,
                                       @RequestHeader(OWNER_HEADER) long ownerId,
                                       @PathVariable long id) {
+        log.info("PATCH /items/{} - Обновление вещи пользователем {}", id, ownerId);
+
         Item patchedItem = itemService.patchItem(itemMapper.convertToEntity(itemDto), ownerId, id);
         return itemMapper.convertToDto(patchedItem);
     }

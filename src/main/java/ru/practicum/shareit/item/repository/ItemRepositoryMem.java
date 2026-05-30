@@ -31,12 +31,12 @@ public class ItemRepositoryMem implements ItemRepository {
         return items.values().stream()
                 .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
                         item.getDescription().toLowerCase().contains(text.toLowerCase()))
-                .filter(Item::getIsAvailable)
+                .filter(Item::getAvailable)
                 .toList();
     }
 
     @Override
-    public Item postItem (Item item) {
+    public Item postItem(Item item) {
         item.setId(++currentId);
         items.put(item.getId(), item);
 
@@ -44,19 +44,19 @@ public class ItemRepositoryMem implements ItemRepository {
     }
 
     @Override
-    public Item patchItem (Item item, long id) {
+    public Item patchItem(Item item, long id) {
         Item oldItem = items.get(id);
 
         Optional.ofNullable(item.getName()).ifPresent(oldItem::setName);
         Optional.ofNullable(item.getDescription()).ifPresent(oldItem::setDescription);
-        Optional.ofNullable(item.getIsAvailable()).ifPresent(oldItem::setIsAvailable);
+        Optional.ofNullable(item.getAvailable()).ifPresent(oldItem::setAvailable);
 
         return oldItem;
     }
 
     @Override
     public void existsById(long id) {
-        if(!items.containsKey(id)) {
+        if (!items.containsKey(id)) {
             throw new IdNotFoundException("Вещи с id " + id + " нет в базе!");
         }
     }

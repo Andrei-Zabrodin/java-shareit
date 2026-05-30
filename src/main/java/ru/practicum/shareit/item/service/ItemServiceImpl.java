@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
@@ -31,11 +32,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<Item> getItemsBySearch(String text) {
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         return itemRepository.getItemsBySearch(text);
     }
 
     @Override
-    public Item postItem (Item item, long ownerId) {
+    public Item postItem(Item item, long ownerId) {
         userRepository.existsById(ownerId);
         item.setOwnerId(ownerId);
 
@@ -43,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item patchItem (Item item, long ownerId, long id) {
+    public Item patchItem(Item item, long ownerId, long id) {
         userRepository.existsById(ownerId);
 
         if (getItemById(id).getOwnerId() != ownerId) {

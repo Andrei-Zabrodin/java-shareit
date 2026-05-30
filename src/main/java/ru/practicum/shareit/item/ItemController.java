@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.dto.ResponseItemDto;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Slf4j
 public class ItemController {
     private static final String OWNER_HEADER = "X-Sharer-User-Id";
 
@@ -31,7 +33,7 @@ public class ItemController {
         return itemMapper.convertToDto(itemService.getItemById(id));
     }
 
-    @GetMapping("/search?text={text}")
+    @GetMapping("/search")
     public List<ResponseItemDto> getItemsBySearch(@RequestParam String text) {
         return itemService.getItemsBySearch(text).stream()
                 .map(itemMapper::convertToDto)
@@ -39,14 +41,15 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseItemDto postItem (@Valid @RequestBody RequestItemDto itemDto,
+    public ResponseItemDto postItem(@Valid @RequestBody RequestItemDto itemDto,
                              @RequestHeader(OWNER_HEADER) long ownerId) {
+        log.debug(itemDto.toString());
         Item postedItem = itemService.postItem(itemMapper.convertToEntity(itemDto), ownerId);
         return itemMapper.convertToDto(postedItem);
     }
 
     @PatchMapping("/{id}")
-    public ResponseItemDto patchItem (@RequestBody RequestItemDto itemDto,
+    public ResponseItemDto patchItem(@RequestBody RequestItemDto itemDto,
                                       @RequestHeader(OWNER_HEADER) long ownerId,
                                       @PathVariable long id) {
         Item patchedItem = itemService.patchItem(itemMapper.convertToEntity(itemDto), ownerId, id);

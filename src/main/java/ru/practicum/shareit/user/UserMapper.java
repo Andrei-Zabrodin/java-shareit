@@ -7,5 +7,6 @@ import ru.practicum.shareit.user.dto.ResponseUserDto;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     ResponseUserDto toResponseUserDto(User user);
+
     User toEntity(RequestUserDto userDto);
 }

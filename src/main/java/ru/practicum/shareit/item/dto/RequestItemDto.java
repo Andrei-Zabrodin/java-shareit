@@ -15,5 +15,5 @@ public class RequestItemDto {
     private String description;
 
     @NotNull(message = "Необходимо указать, доступна ли вещь!")
-    private Boolean isAvailable;
+    private Boolean available;
 }

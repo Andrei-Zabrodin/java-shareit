@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class ItemDto {
     private Long id;
+
     @NotBlank(message = "Название вещи должно быть заполнено!")
     private String name;
 

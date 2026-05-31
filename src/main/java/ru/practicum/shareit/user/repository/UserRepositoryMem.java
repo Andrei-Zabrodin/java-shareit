@@ -20,12 +20,18 @@ public class UserRepositoryMem implements UserRepository {
     }
 
     @Override
-    public Optional<User> getUserById(long id) {
-        return Optional.ofNullable(users.get(id));
+    public User getUserById(long id) {
+        log.debug("Проверка существования пользователя с id: {}", id);
+        if (!users.containsKey(id)) {
+            log.debug("Пользователь с id: {} не найден", id);
+            throw new IdNotFoundException("Пользователя с id " + id + " нет в базе!");
+        }
+
+        return users.get(id);
     }
 
     @Override
-    public User postUser(User user) {
+    public User save(User user) {
         user.setId(++currentId);
         users.put(user.getId(), user);
 
@@ -33,18 +39,18 @@ public class UserRepositoryMem implements UserRepository {
     }
 
     @Override
-    public User patchUser(User user, long id) {
-        log.debug("На обновление переданы следующие данные: {}", user.toString());
+    public User update(User newUser) {
+        log.debug("На обновление переданы следующие данные: {}", newUser.toString());
 
-        User oldUser = users.get(id);
-        Optional.ofNullable(user.getName()).ifPresent(oldUser::setName);
-        Optional.ofNullable(user.getEmail()).ifPresent(oldUser::setEmail);
+        User oldUser = users.get(newUser.getId());
+        Optional.ofNullable(newUser.getName()).ifPresent(oldUser::setName);
+        Optional.ofNullable(newUser.getEmail()).ifPresent(oldUser::setEmail);
 
         return oldUser;
     }
 
     @Override
-    public void deleteUser(long id) {
+    public void delete(long id) {
         users.remove(id);
     }
 
@@ -60,15 +66,5 @@ public class UserRepositoryMem implements UserRepository {
             log.debug("Адрес {} уже есть в базе", user.getEmail());
             throw new DuplicateObjectException("Адрес почты " + user.getEmail() + " уже используется!");
         }
-    }
-
-    @Override
-    public void existsById(long id) {
-        log.debug("Проверка существования пользователя с id: {}", id);
-
-         if (!users.containsKey(id)) {
-             log.debug("Пользователь с id: {} не найден", id);
-             throw new IdNotFoundException("Пользователя с id " + id + " нет в базе!");
-         }
     }
 }

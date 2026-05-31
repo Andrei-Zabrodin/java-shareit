@@ -1,13 +1,12 @@
 package ru.practicum.shareit.user;
 
 import org.mapstruct.Mapper;
-import ru.practicum.shareit.user.dto.RequestUserDto;
-import ru.practicum.shareit.user.dto.ResponseUserDto;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    ResponseUserDto toResponseUserDto(User user);
+    UserDto toUserDto(User user);
 
-    User toEntity(RequestUserDto userDto);
+    User toEntity(UserDto userDto);
 }

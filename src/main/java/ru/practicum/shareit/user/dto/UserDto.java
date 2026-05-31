@@ -7,7 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RequestUserDto {
+public class UserDto {
+    private Long id;
 
     @NotBlank(message = "Должно быть заполнено имя пользователя")
     private String name;

@@ -3,10 +3,10 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.OwnershipConflictException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -21,15 +21,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<Item> getItems(long ownerId) {
-        userRepository.existsById(ownerId);
+        userRepository.getUserById(ownerId);
 
         return itemRepository.getItems(ownerId);
     }
 
     @Override
     public Item getItemById(long id) {
-        return itemRepository.getItemById(id)
-                .orElseThrow(() -> new IdNotFoundException("Вещи с id " + id + " нет в базе!"));
+        return itemRepository.getItemById(id);
     }
 
     @Override
@@ -43,24 +42,26 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item postItem(Item item, long ownerId) {
-        userRepository.existsById(ownerId);
-        item.setOwnerId(ownerId);
+    public Item save(Item item, long ownerId) {
+        User owner = userRepository.getUserById(ownerId);
 
-        return itemRepository.postItem(item);
+        item.setOwner(owner);
+
+        return itemRepository.save(item);
     }
 
     @Override
-    public Item patchItem(Item item, long ownerId, long id) {
-        userRepository.existsById(ownerId);
-        itemRepository.existsById(id);
+    public Item update(Item item, long ownerId, long id) {
+        userRepository.getUserById(ownerId);
 
-        long realOwnerId = getItemById(id).getOwnerId();
+        Item oldItem = itemRepository.getItemById(id);
+        long realOwnerId = oldItem.getOwner().getId();
         if (realOwnerId != ownerId) {
             log.debug("Переданный id пользователя - {}  - не совпадает с владельца вещи - {}", ownerId, realOwnerId);
             throw new OwnershipConflictException("Вы не являетесь владельцем вещи с id" + id + "!");
         }
 
-        return itemRepository.patchItem(item, id);
+        item.setId(id);
+        return itemRepository.update(item);
     }
 }

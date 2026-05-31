@@ -4,8 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.RequestItemDto;
-import ru.practicum.shareit.item.dto.ResponseItemDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -22,7 +21,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ResponseItemDto> getItems(@RequestHeader(OWNER_HEADER) long ownerId) {
+    public List<ItemDto> getItems(@RequestHeader(OWNER_HEADER) long ownerId) {
         log.info("GET /items – Запрос всех вещей пользователя с id: {}", ownerId);
 
         return itemService.getItems(ownerId).stream()
@@ -31,14 +30,14 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseItemDto getItemById(@PathVariable long id) {
+    public ItemDto getItemById(@PathVariable long id) {
         log.info("GET /items/{} - Запрос вещи по id", id);
 
         return itemMapper.convertToDto(itemService.getItemById(id));
     }
 
     @GetMapping("/search")
-    public List<ResponseItemDto> getItemsBySearch(@RequestParam String text) {
+    public List<ItemDto> getItemsBySearch(@RequestParam String text) {
         log.info("GET /items/search - Поиск доступных для аренды вещей по строке: '{}'", text);
 
         return itemService.getItemsBySearch(text).stream()
@@ -47,21 +46,21 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseItemDto postItem(@Valid @RequestBody RequestItemDto itemDto,
+    public ItemDto postItem(@Valid @RequestBody ItemDto itemDto,
                              @RequestHeader(OWNER_HEADER) long ownerId) {
         log.info("POST /items - Создание новой вещи: {}, id владельца: {}", itemDto.getName(), ownerId);
 
-        Item postedItem = itemService.postItem(itemMapper.convertToEntity(itemDto), ownerId);
+        Item postedItem = itemService.save(itemMapper.convertToEntity(itemDto), ownerId);
         return itemMapper.convertToDto(postedItem);
     }
 
     @PatchMapping("/{id}")
-    public ResponseItemDto patchItem(@RequestBody RequestItemDto itemDto,
+    public ItemDto patchItem(@RequestBody ItemDto itemDto,
                                       @RequestHeader(OWNER_HEADER) long ownerId,
                                       @PathVariable long id) {
         log.info("PATCH /items/{} - Обновление вещи пользователем {}", id, ownerId);
 
-        Item patchedItem = itemService.patchItem(itemMapper.convertToEntity(itemDto), ownerId, id);
+        Item patchedItem = itemService.update(itemMapper.convertToEntity(itemDto), ownerId, id);
         return itemMapper.convertToDto(patchedItem);
     }
 

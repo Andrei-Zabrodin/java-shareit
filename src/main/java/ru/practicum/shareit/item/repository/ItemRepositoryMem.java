@@ -19,13 +19,19 @@ public class ItemRepositoryMem implements ItemRepository {
     @Override
     public Collection<Item> getItems(long ownerId) {
         return items.values().stream()
-                .filter(item -> item.getOwnerId()  == ownerId)
+                .filter(item -> item.getOwner().getId()  == ownerId)
                 .toList();
     }
 
     @Override
-    public Optional<Item> getItemById(long id) {
-        return Optional.ofNullable(items.get(id));
+    public Item getItemById(long id) {
+        log.debug("Проверка существования вещи с id: {}", id);
+        if (!items.containsKey(id)) {
+            log.debug("Вещь с id: {} не найдена", id);
+            throw new IdNotFoundException("Вещи с id " + id + " нет в базе!");
+        }
+
+        return items.get(id);
     }
 
     @Override
@@ -38,7 +44,7 @@ public class ItemRepositoryMem implements ItemRepository {
     }
 
     @Override
-    public Item postItem(Item item) {
+    public Item save(Item item) {
         item.setId(++currentId);
         items.put(item.getId(), item);
 
@@ -46,24 +52,14 @@ public class ItemRepositoryMem implements ItemRepository {
     }
 
     @Override
-    public Item patchItem(Item item, long id) {
-        log.debug("На обновление переданы следующие данные: {}", item.toString());
+    public Item update(Item newItem) {
+        log.debug("На обновление переданы следующие данные: {}", newItem.toString());
 
-        Item oldItem = items.get(id);
-        Optional.ofNullable(item.getName()).ifPresent(oldItem::setName);
-        Optional.ofNullable(item.getDescription()).ifPresent(oldItem::setDescription);
-        Optional.ofNullable(item.getAvailable()).ifPresent(oldItem::setAvailable);
+        Item oldItem = items.get(newItem.getId());
+        Optional.ofNullable(newItem.getName()).ifPresent(oldItem::setName);
+        Optional.ofNullable(newItem.getDescription()).ifPresent(oldItem::setDescription);
+        Optional.ofNullable(newItem.getAvailable()).ifPresent(oldItem::setAvailable);
 
         return oldItem;
-    }
-
-    @Override
-    public void existsById(long id) {
-        log.debug("Проверка существования вещи с id: {}", id);
-
-        if (!items.containsKey(id)) {
-            log.debug("Вещь с id: {} не найдена", id);
-            throw new IdNotFoundException("Вещи с id " + id + " нет в базе!");
-        }
     }
 }

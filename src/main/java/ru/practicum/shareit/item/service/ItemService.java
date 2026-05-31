@@ -11,7 +11,7 @@ public interface ItemService {
 
     Collection<Item> getItemsBySearch(String text);
 
-    Item postItem(Item item, long ownerId);
+    Item save(Item item, long ownerId);
 
-    Item patchItem(Item itemDto, long ownerId, long id);
+    Item update(Item itemDto, long ownerId, long id);
 }

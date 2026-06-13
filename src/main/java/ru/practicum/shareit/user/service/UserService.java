@@ -14,4 +14,6 @@ public interface UserService {
     User update(User user, long id);
 
     void delete(long id);
+
+    void existsByEmail(User user);
 }

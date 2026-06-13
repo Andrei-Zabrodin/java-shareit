@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,16 +52,12 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings;
         switch(state) {
-            case PAST -> bookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, currentTime);
-            case CURRENT -> bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId,
-                    currentTime, currentTime);
-            case FUTURE -> bookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId,
-                    currentTime);
-            case WAITING -> bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId,
-                    BookingStatus.WAITING);
-            case REJECTED -> bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId,
-                    BookingStatus.REJECTED);
-            default -> bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
+            case PAST -> bookings = bookingRepository.findPastByBookerId(userId, currentTime);
+            case CURRENT -> bookings = bookingRepository.findCurrentByBookerId(userId, currentTime);
+            case FUTURE -> bookings = bookingRepository.findFutureByBookerId(userId, currentTime);
+            case WAITING -> bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.WAITING);
+            case REJECTED -> bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.REJECTED);
+            default -> bookings = bookingRepository.findAllByBookerId(userId);
         }
 
         return bookings;
@@ -73,17 +70,12 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings;
         switch(state) {
-            case PAST -> bookings = bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(userId,
-                    currentTime);
-            case CURRENT -> bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId,
-                    currentTime, currentTime);
-            case FUTURE -> bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(userId,
-                    currentTime);
-            case WAITING -> bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId,
-                    BookingStatus.WAITING);
-            case REJECTED -> bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId,
-                    BookingStatus.REJECTED);
-            default -> bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
+            case PAST -> bookings = bookingRepository.findPastByItemOwnerId(userId, currentTime);
+            case CURRENT -> bookings = bookingRepository.findCurrentByItemOwnerId(userId, currentTime);
+            case FUTURE -> bookings = bookingRepository.findFutureByItemOwnerId(userId, currentTime);
+            case WAITING -> bookings = bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.WAITING);
+            case REJECTED -> bookings = bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED);
+            default -> bookings = bookingRepository.findAllByItemOwnerId(userId);
         }
 
         return bookings;
@@ -123,6 +115,16 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Optional<Booking> getPreviousBookingByItemId(long itemId) {
+        return bookingRepository.findFirstByItemIdAndStartBeforeOrderByStartDesc(itemId, LocalDateTime.now());
+    }
+
+    @Override
+    public Optional<Booking> getNextBookingByItemId(long itemId) {
+        return bookingRepository.findFirstByItemIdAndStartAfterOrderByStartAsc(itemId, LocalDateTime.now());
     }
 
     private void validateBooking(Booking booking) {

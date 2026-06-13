@@ -6,11 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDatesDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,14 +25,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
-    private static final String OWNER_HEADER = "X-Sharer-User-Id";
+    private static final String USER_HEADER = "X-Sharer-User-Id";
 
     private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
     private final ItemService itemService;
     private final BookingService bookingService;
 
     @GetMapping
-    public List<ItemWithBookingDatesDto> getItems(@RequestHeader(OWNER_HEADER) long ownerId) {
+    public List<ItemWithBookingDatesDto> getItems(@RequestHeader(USER_HEADER) long ownerId) {
         log.info("GET /items – Запрос всех вещей пользователя с id: {}", ownerId);
 
         Map<Long, Item> itemMap = itemService.getItems(ownerId).stream()
@@ -41,11 +47,16 @@ public class ItemController {
                 .stream()
                 .collect(Collectors.toMap(BookingWithDatesOnly::getItemId, booking -> booking));
 
+        Map<Long, List<Comment>> commentsMap = itemService.getCommentsByItemIds(itemMap.keySet())
+                .stream()
+                .collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
+
         return itemMap.values().stream()
                 .map(item -> itemMapper.convertToDto(
                         item,
                         prevBookings.getOrDefault(item.getId(), null),
-                        nextBookings.getOrDefault(item.getId(), null)
+                        nextBookings.getOrDefault(item.getId(), null),
+                        commentsMap.getOrDefault(item.getId(), null)
                 ))
                 .toList();
     }
@@ -54,7 +65,9 @@ public class ItemController {
     public ItemDto getItemById(@PathVariable long id) {
         log.info("GET /items/{} - Запрос вещи по id", id);
 
-        return itemMapper.convertToDto(itemService.getItemById(id));
+        Collection<Comment> comments = itemService.getCommentsByItemId(id);
+
+        return itemMapper.convertToDto(itemService.getItemById(id), comments);
     }
 
     @GetMapping("/search")
@@ -68,7 +81,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto postItem(@Valid @RequestBody ItemDto itemDto,
-                             @RequestHeader(OWNER_HEADER) long ownerId) {
+                            @RequestHeader(USER_HEADER) long ownerId) {
         log.info("POST /items - Создание новой вещи: {}, id владельца: {}", itemDto.getName(), ownerId);
 
         Item postedItem = itemService.save(itemMapper.convertToEntity(itemDto), ownerId);
@@ -77,13 +90,23 @@ public class ItemController {
 
     @PatchMapping("/{id}")
     public ItemDto patchItem(@RequestBody ItemDto itemDto,
-                                      @RequestHeader(OWNER_HEADER) long ownerId,
-                                      @PathVariable long id) {
+                             @RequestHeader(USER_HEADER) long ownerId,
+                             @PathVariable long id) {
         log.info("PATCH /items/{} - Обновление вещи пользователем {}", id, ownerId);
 
         Item patchedItem = itemService.update(itemMapper.convertToEntity(itemDto), ownerId, id);
         return itemMapper.convertToDto(patchedItem);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentDto postComment(@RequestHeader(USER_HEADER) long userId,
+                                  @PathVariable long itemId,
+                                  @RequestBody @Valid CommentDto comment) {
+        log.info("POST /items/{}/comment - Комментирование вещи пользователем {}", itemId, userId);
+
+        Comment postedComment = itemService.save(commentMapper.convertToEntity(comment), userId, itemId);
+
+        return commentMapper.convertToDto(postedComment);
+    }
 
 }

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collection;
+
 @Getter
 @Setter
 public class ItemDto {
@@ -18,4 +20,6 @@ public class ItemDto {
 
     @NotNull(message = "Необходимо указать, доступна ли вещь!")
     private Boolean available;
+
+    private Collection<CommentDto> commentCollection;
 }

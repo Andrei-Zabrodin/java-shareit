@@ -52,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new IdNotFoundException("Пользователь с id " + userId + " не найден!"));
 
         List<Booking> bookings;
-        switch(state) {
+        switch (state) {
             case PAST -> bookings = bookingRepository.findPastByBookerId(userId, currentTime);
             case CURRENT -> bookings = bookingRepository.findCurrentByBookerId(userId, currentTime);
             case FUTURE -> bookings = bookingRepository.findFutureByBookerId(userId, currentTime);
@@ -70,7 +70,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new IdNotFoundException("Пользователь с id " + userId + " не найден!"));
 
         List<Booking> bookings;
-        switch(state) {
+        switch (state) {
             case PAST -> bookings = bookingRepository.findPastByItemOwnerId(userId, currentTime);
             case CURRENT -> bookings = bookingRepository.findCurrentByItemOwnerId(userId, currentTime);
             case FUTURE -> bookings = bookingRepository.findFutureByItemOwnerId(userId, currentTime);

@@ -60,5 +60,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT i.id AS itemId, b.start AS start, b.end AS end FROM Booking b JOIN b.item i " +
             "WHERE i.id IN ?1 AND b.start > ?2 AND b.start = " +
             "(SELECT MIN(b2.start) FROM Booking b2 JOIN b2.item i2 WHERE i2.id = i.id AND b2.start > ?2 GROUP BY i2.id)")
-    List<BookingWithDatesOnly> findPrevBookingByItemId(Set<Long> itemIds, LocalDateTime currentTime);
+    List<BookingWithDatesOnly> findLastBookingByItemId(Set<Long> itemIds, LocalDateTime currentTime);
+
+    BookingWithDatesOnly findFirstByItemIdAndStartAfterOrderByStartAsc(long itemId, LocalDateTime currentTime);
+
+    BookingWithDatesOnly findFirstByItemIdAndEndBeforeOrderByEndDesc(long itemId, LocalDateTime currentTime);
 }

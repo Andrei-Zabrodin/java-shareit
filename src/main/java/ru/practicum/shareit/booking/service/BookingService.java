@@ -18,7 +18,11 @@ public interface BookingService {
 
     Booking approve(long userId, long bookingId, boolean approved);
 
-    List<BookingWithDatesOnly> getPrevBookingsByItemIds(Set<Long> itemIds);
+    List<BookingWithDatesOnly> getLastBookingsByItemIds(Set<Long> itemIds);
 
     List<BookingWithDatesOnly> getNextBookingsByItemIds(Set<Long> itemIds);
+
+    BookingWithDatesOnly getNextBookingByItemId(long itemId);
+
+    BookingWithDatesOnly getLastBookingByItemId(long itemId);
 }

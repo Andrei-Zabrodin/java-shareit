@@ -8,7 +8,6 @@ import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemWithBookingDatesDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -33,13 +32,13 @@ public class ItemController {
     private final BookingService bookingService;
 
     @GetMapping
-    public List<ItemWithBookingDatesDto> getItems(@RequestHeader(USER_HEADER) long ownerId) {
+    public List<ItemDto> getItems(@RequestHeader(USER_HEADER) long ownerId) {
         log.info("GET /items – Запрос всех вещей пользователя с id: {}", ownerId);
 
         Map<Long, Item> itemMap = itemService.getItems(ownerId).stream()
                 .collect(Collectors.toMap(Item::getId, item -> item));
 
-        Map<Long, BookingWithDatesOnly> prevBookings = bookingService.getPrevBookingsByItemIds(itemMap.keySet())
+        Map<Long, BookingWithDatesOnly> lastBookings = bookingService.getLastBookingsByItemIds(itemMap.keySet())
                 .stream()
                 .collect(Collectors.toMap(BookingWithDatesOnly::getItemId, booking -> booking));
 
@@ -52,9 +51,9 @@ public class ItemController {
                 .collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
 
         return itemMap.values().stream()
-                .map(item -> itemMapper.convertToDto(
+                .map(item -> itemMapper.convertToDtoWithBookingDates(
                         item,
-                        prevBookings.getOrDefault(item.getId(), null),
+                        lastBookings.getOrDefault(item.getId(), null),
                         nextBookings.getOrDefault(item.getId(), null),
                         commentsMap.getOrDefault(item.getId(), null)
                 ))

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.OwnershipConflictException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
@@ -73,12 +74,13 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toSet());
 
         if (!bookedItemIds.contains(itemId)) {
-            throw new OwnershipConflictException("Оставлять комментарии могут только пользователи, " +
+            throw new ValidationException("Оставлять комментарии могут только пользователи, " +
                     "которые уже пользовались вещью!");
         }
 
         comment.setAuthor(author);
         comment.setItem(item);
+        comment.setCreated(LocalDateTime.now());
 
         return commentRepository.save(comment);
     }

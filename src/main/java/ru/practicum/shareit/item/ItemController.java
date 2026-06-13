@@ -4,11 +4,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingDatesDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/items")
@@ -19,13 +24,29 @@ public class ItemController {
 
     private final ItemMapper itemMapper;
     private final ItemService itemService;
+    private final BookingService bookingService;
 
     @GetMapping
-    public List<ItemDto> getItems(@RequestHeader(OWNER_HEADER) long ownerId) {
+    public List<ItemWithBookingDatesDto> getItems(@RequestHeader(OWNER_HEADER) long ownerId) {
         log.info("GET /items – Запрос всех вещей пользователя с id: {}", ownerId);
 
-        return itemService.getItems(ownerId).stream()
-                .map(itemMapper::convertToDto)
+        Map<Long, Item> itemMap = itemService.getItems(ownerId).stream()
+                .collect(Collectors.toMap(Item::getId, item -> item));
+
+        Map<Long, BookingWithDatesOnly> prevBookings = bookingService.getPrevBookingsByItemIds(itemMap.keySet())
+                .stream()
+                .collect(Collectors.toMap(BookingWithDatesOnly::getItemId, booking -> booking));
+
+        Map<Long, BookingWithDatesOnly> nextBookings = bookingService.getNextBookingsByItemIds(itemMap.keySet())
+                .stream()
+                .collect(Collectors.toMap(BookingWithDatesOnly::getItemId, booking -> booking));
+
+        return itemMap.values().stream()
+                .map(item -> itemMapper.convertToDto(
+                        item,
+                        prevBookings.getOrDefault(item.getId(), null),
+                        nextBookings.getOrDefault(item.getId(), null)
+                ))
                 .toList();
     }
 

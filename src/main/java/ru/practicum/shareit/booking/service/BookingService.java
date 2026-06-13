@@ -2,10 +2,10 @@ package ru.practicum.shareit.booking.service;
 
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.controller.BookingsRequestState;
+import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 public interface BookingService {
     Booking getBooking(long userId, long bookingId);
@@ -18,7 +18,7 @@ public interface BookingService {
 
     Booking approve(long userId, long bookingId, boolean approved);
 
-    Optional<Booking> getPreviousBookingByItemId(long itemId);
+    List<BookingWithDatesOnly> getPrevBookingsByItemIds(Set<Long> itemIds);
 
-    Optional<Booking> getNextBookingByItemId(long itemId);
+    List<BookingWithDatesOnly> getNextBookingsByItemIds(Set<Long> itemIds);
 }

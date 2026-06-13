@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.controller.BookingsRequestState;
@@ -15,7 +16,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -118,13 +119,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Optional<Booking> getPreviousBookingByItemId(long itemId) {
-        return bookingRepository.findFirstByItemIdAndStartBeforeOrderByStartDesc(itemId, LocalDateTime.now());
+    public List<BookingWithDatesOnly> getPrevBookingsByItemIds(Set<Long> itemIds) {
+        return bookingRepository.findPrevBookingByItemId(itemIds, LocalDateTime.now());
     }
 
     @Override
-    public Optional<Booking> getNextBookingByItemId(long itemId) {
-        return bookingRepository.findFirstByItemIdAndStartAfterOrderByStartAsc(itemId, LocalDateTime.now());
+    public List<BookingWithDatesOnly> getNextBookingsByItemIds(Set<Long> itemIds) {
+        return bookingRepository.findNextBookingByItemId(itemIds, LocalDateTime.now());
     }
 
     private void validateBooking(Booking booking) {

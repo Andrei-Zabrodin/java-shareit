@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateObjectException;
 import ru.practicum.shareit.exception.IdNotFoundException;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -17,27 +19,34 @@ import java.util.Optional;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
-    public Collection<User> getUsers() {
-        return userRepository.findAll();
+    public Collection<UserDto> getUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     @Override
-    public User getUserById(long id) {
-        return userRepository.findById(id)
+    public UserDto getUserById(long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new IdNotFoundException("Пользователя с id " + id + " нет в базе!"));
+
+        return userMapper.toUserDto(user);
     }
 
     @Override
-    public User save(User user) {
+    public UserDto save(UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
         existsByEmail(user);
 
-        return userRepository.save(user);
+        return userMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
-    public User update(User newUser, long id) {
+    public UserDto update(UserDto userDto, long id) {
+        User newUser = userMapper.toEntity(userDto);
         log.debug("На обновление переданы следующие данные: {}", newUser.toString());
 
         User oldUser = userRepository.findById(id)
@@ -47,7 +56,7 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(newUser.getName()).ifPresent(oldUser::setName);
         Optional.ofNullable(newUser.getEmail()).ifPresent(oldUser::setEmail);
 
-        return userRepository.save(oldUser);
+        return userMapper.toUserDto(userRepository.save(oldUser));
     }
 
     @Override

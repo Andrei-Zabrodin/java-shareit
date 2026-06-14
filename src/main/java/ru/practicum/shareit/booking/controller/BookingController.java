@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -28,7 +27,7 @@ public class BookingController {
     public BookingResponseDto getBooking(@RequestHeader(USER_HEADER) long userId, @PathVariable long bookingId) {
         log.info("GET /bookings/{} - Запрос бронирования по id", bookingId);
 
-        return bookingMapper.convertToDto(bookingService.getBooking(userId, bookingId));
+        return bookingService.getBooking(userId, bookingId);
     }
 
     @GetMapping
@@ -36,9 +35,7 @@ public class BookingController {
                                                         @RequestParam(defaultValue = "ALL") BookingsRequestState state) {
         log.info("GET /bookings?state={} - Запрос бронирований пользователя с id {}", state, userId);
 
-        return bookingService.getBookingsForBookerByState(userId, state).stream()
-                .map(bookingMapper::convertToDto)
-                .toList();
+        return bookingService.getBookingsForBookerByState(userId, state);
     }
 
     @GetMapping("/owner")
@@ -46,9 +43,7 @@ public class BookingController {
                                                        @RequestParam(defaultValue = "ALL") BookingsRequestState state) {
         log.info("GET /bookings/owner?state={} - Запрос бронирований вещей пользователя с id {}", state, userId);
 
-        return bookingService.getBookingsForOwnerByState(userId, state).stream()
-                .map(bookingMapper::convertToDto)
-                .toList();
+        return bookingService.getBookingsForOwnerByState(userId, state);
     }
 
 
@@ -58,9 +53,7 @@ public class BookingController {
         log.info("POST /bookings - Создание нового бронирования вещи с id {}, id создателя: {}",
                 bookingDto.getItemId(), userId);
 
-        Booking booking = bookingMapper.convertToEntity(bookingDto, itemService);
-
-        return bookingMapper.convertToDto(bookingService.save(userId, booking));
+        return bookingService.save(userId, bookingDto);
     }
 
 
@@ -69,6 +62,6 @@ public class BookingController {
                                      @RequestParam boolean approved) {
         log.info("PATCH /bookings/{} - Изменение статуса бронирования, id пользователя: {}", bookingId, userId);
 
-        return bookingMapper.convertToDto(bookingService.approve(userId, bookingId, approved));
+        return bookingService.approve(userId, bookingId, approved);
     }
 }

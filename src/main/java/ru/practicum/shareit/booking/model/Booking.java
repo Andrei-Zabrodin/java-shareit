@@ -6,7 +6,7 @@ import lombok.Setter;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "bookings")
@@ -19,10 +19,10 @@ public class Booking {
     private Long id;
 
     @Column(name = "start_date")
-    private LocalDateTime start;
+    private Instant start;
 
     @Column(name = "end_date")
-    private LocalDateTime end;
+    private Instant end;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")

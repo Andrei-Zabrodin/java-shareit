@@ -19,7 +19,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
 
-    private LocalDateTime currentTime = LocalDateTime.now();
+    private Instant currentTime = Instant.now();
 
     @Override
     public BookingResponseDto getBooking(long userId, long bookingId) {
@@ -135,22 +135,22 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingWithDatesOnly> getLastBookingsByItemIds(Set<Long> itemIds) {
-        return bookingRepository.findLastBookingByItemId(itemIds, LocalDateTime.now());
+        return bookingRepository.findLastBookingByItemId(itemIds, currentTime);
     }
 
     @Override
     public List<BookingWithDatesOnly> getNextBookingsByItemIds(Set<Long> itemIds) {
-        return bookingRepository.findNextBookingByItemId(itemIds, LocalDateTime.now());
+        return bookingRepository.findNextBookingByItemId(itemIds, currentTime);
     }
 
     @Override
     public BookingWithDatesOnly getLastBookingByItemId(long itemId) {
-        return bookingRepository.findFirstByItemIdAndEndBeforeOrderByEndDesc(itemId, LocalDateTime.now());
+        return bookingRepository.findFirstByItemIdAndEndBeforeOrderByEndDesc(itemId, currentTime);
     }
 
     @Override
     public BookingWithDatesOnly getNextBookingByItemId(long itemId) {
-        return bookingRepository.findFirstByItemIdAndStartAfterOrderByStartAsc(itemId, LocalDateTime.now());
+        return bookingRepository.findFirstByItemIdAndStartAfterOrderByStartAsc(itemId, currentTime);
     }
 
     private void validateBooking(Booking booking) {

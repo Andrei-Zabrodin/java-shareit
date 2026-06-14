@@ -1,11 +1,11 @@
 package ru.practicum.shareit.booking.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public interface BookingWithDatesOnly {
     Long getItemId();
 
-    LocalDateTime getStart();
+    Instant getStart();
 
-    LocalDateTime getEnd();
+    Instant getEnd();
 }

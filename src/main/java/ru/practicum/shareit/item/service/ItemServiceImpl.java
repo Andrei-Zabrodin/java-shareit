@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -20,7 +21,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,9 +105,16 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new IdNotFoundException("Пользователя с id " + userId + " нет в базе!"));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IdNotFoundException("Вещи с id " + itemId + " нет в базе!"));
+        System.out.println("ФФФФФФФФ");
+        System.out.println(Instant.now().toString());
+        List<Instant> list = bookingRepository.findAllByBookerId(userId).stream().map(Booking::getEnd).toList();
+        for (Instant time: list) {
+            System.out.println(time);
+        }
+        System.out.println("ФФФФФФФФ");
 
         //проверяем, что автор комментарий, действительно уже пользовался вещью
-        Set<Long> bookedItemIds = bookingRepository.findPastByBookerId(userId, LocalDateTime.now()).stream()
+        Set<Long> bookedItemIds = bookingRepository.findPastByBookerId(userId, Instant.now()).stream()
                 .map(booking -> booking.getItem().getId())
                 .collect(Collectors.toSet());
 
@@ -118,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = commentMapper.convertToEntity(commentDto);
         comment.setAuthor(author);
         comment.setItem(item);
-        comment.setCreated(LocalDateTime.now());
+        comment.setCreated(Instant.now());
 
         return commentMapper.convertToDto(commentRepository.save(comment));
     }

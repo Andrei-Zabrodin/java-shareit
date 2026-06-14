@@ -6,7 +6,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -18,15 +18,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u " +
             "WHERE u.id = ?1 AND b.end < ?2 ORDER BY b.start DESC")
-    List<Booking> findPastByBookerId(long bookerId, LocalDateTime currentTime);
+    List<Booking> findPastByBookerId(long bookerId, Instant currentTime);
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u " +
             "WHERE u.id = ?1 AND b.start < ?2 AND b.end > ?2 ORDER BY b.start DESC")
-    List<Booking> findCurrentByBookerId(long bookerId, LocalDateTime currentTime);
+    List<Booking> findCurrentByBookerId(long bookerId, Instant currentTime);
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u " +
             "WHERE u.id = ?1 AND b.start > ?2 ORDER BY b.start DESC")
-    List<Booking> findFutureByBookerId(long bookerId, LocalDateTime currentTime);
+    List<Booking> findFutureByBookerId(long bookerId, Instant currentTime);
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u " +
             "WHERE u.id = ?1 AND b.status = ?2 ORDER BY b.start DESC")
@@ -38,15 +38,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u JOIN FETCH i.owner o " +
             "WHERE o.id = ?1 AND b.end < ?2 ORDER BY b.start DESC")
-    List<Booking> findPastByItemOwnerId(long ownerId, LocalDateTime currentTime);
+    List<Booking> findPastByItemOwnerId(long ownerId, Instant currentTime);
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u JOIN FETCH i.owner o " +
             "WHERE o.id = ?1 AND b.start < ?2 AND b.end > ?2 ORDER BY b.start DESC")
-    List<Booking> findCurrentByItemOwnerId(long ownerId, LocalDateTime currentTime);
+    List<Booking> findCurrentByItemOwnerId(long ownerId, Instant currentTime);
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u JOIN FETCH i.owner o " +
             "WHERE o.id = ?1 AND b.start > ?2 ORDER BY b.start DESC")
-    List<Booking> findFutureByItemOwnerId(long ownerId, LocalDateTime currentTime);
+    List<Booking> findFutureByItemOwnerId(long ownerId, Instant currentTime);
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.item i JOIN FETCH b.booker u JOIN FETCH i.owner o " +
             "WHERE o.id = ?1 AND b.status = ?2 ORDER BY b.start DESC")
@@ -55,14 +55,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT i.id AS itemId, b.start AS start, b.end AS end FROM Booking b JOIN b.item i " +
             "WHERE i.id IN ?1 AND b.start < ?2 AND b.start = " +
             "(SELECT MAX(b2.start) FROM Booking b2 JOIN b2.item i2 WHERE i2.id = i.id AND b2.start < ?2 GROUP BY i2.id)")
-    List<BookingWithDatesOnly> findNextBookingByItemId(Set<Long> itemIds, LocalDateTime currentTime);
+    List<BookingWithDatesOnly> findNextBookingByItemId(Set<Long> itemIds, Instant currentTime);
 
     @Query("SELECT i.id AS itemId, b.start AS start, b.end AS end FROM Booking b JOIN b.item i " +
             "WHERE i.id IN ?1 AND b.start > ?2 AND b.start = " +
             "(SELECT MIN(b2.start) FROM Booking b2 JOIN b2.item i2 WHERE i2.id = i.id AND b2.start > ?2 GROUP BY i2.id)")
-    List<BookingWithDatesOnly> findLastBookingByItemId(Set<Long> itemIds, LocalDateTime currentTime);
+    List<BookingWithDatesOnly> findLastBookingByItemId(Set<Long> itemIds, Instant currentTime);
 
-    BookingWithDatesOnly findFirstByItemIdAndStartAfterOrderByStartAsc(long itemId, LocalDateTime currentTime);
+    BookingWithDatesOnly findFirstByItemIdAndStartAfterOrderByStartAsc(long itemId, Instant currentTime);
 
-    BookingWithDatesOnly findFirstByItemIdAndEndBeforeOrderByEndDesc(long itemId, LocalDateTime currentTime);
+    BookingWithDatesOnly findFirstByItemIdAndEndBeforeOrderByEndDesc(long itemId, Instant currentTime);
 }

@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -105,13 +104,6 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new IdNotFoundException("Пользователя с id " + userId + " нет в базе!"));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IdNotFoundException("Вещи с id " + itemId + " нет в базе!"));
-        System.out.println("ФФФФФФФФ");
-        System.out.println(Instant.now().toString());
-        List<Instant> list = bookingRepository.findAllByBookerId(userId).stream().map(Booking::getEnd).toList();
-        for (Instant time: list) {
-            System.out.println(time);
-        }
-        System.out.println("ФФФФФФФФ");
 
         //проверяем, что автор комментарий, действительно уже пользовался вещью
         Set<Long> bookedItemIds = bookingRepository.findPastByBookerId(userId, Instant.now()).stream()

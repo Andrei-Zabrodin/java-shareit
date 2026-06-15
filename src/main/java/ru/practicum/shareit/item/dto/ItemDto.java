@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -23,11 +22,8 @@ public class ItemDto {
     @NotNull(message = "Необходимо указать, доступна ли вещь!")
     private Boolean available;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Moscow")
     private Instant lastBooking;
-
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Moscow")
-    private Instant nextBooking;
+    private Instant  nextBooking;
 
     private Collection<CommentDto> comments;
 }

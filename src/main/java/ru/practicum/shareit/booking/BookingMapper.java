@@ -11,5 +11,4 @@ public interface BookingMapper {
     BookingResponseDto convertToDto(Booking booking);
 
     Booking convertToEntity(BookingRequestDto dto);
-
 }

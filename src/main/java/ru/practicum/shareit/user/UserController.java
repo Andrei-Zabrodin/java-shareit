@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.util.List;
+import java.util.Collection;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -19,27 +18,24 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDto> getUsers() {
+    public Collection<UserDto> getUsers() {
         log.info("GET /users – Запрос всех пользователей");
 
-        return userService.getUsers().stream()
-                .map(userMapper::toUserDto)
-                .toList();
+        return userService.getUsers();
     }
 
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable long id) {
         log.info("GET /users/{} - Запрос пользователя по id", id);
 
-        return userMapper.toUserDto(userService.getUserById(id));
+        return userService.getUserById(id);
     }
 
     @PostMapping
     public UserDto postUser(@Valid @RequestBody UserDto userDto) {
         log.info("POST /users - Создание нового пользователя");
 
-        User user = userService.save(userMapper.toEntity(userDto));
-        return userMapper.toUserDto(user);
+        return userService.save(userDto);
     }
 
     @PatchMapping("/{id}")
@@ -47,8 +43,7 @@ public class UserController {
                                      @PathVariable long id) {
         log.info("PATCH /users/{} - Обновление пользователя", id);
 
-        User user = userService.update(userMapper.toEntity(userDto), id);
-        return userMapper.toUserDto(user);
+        return userService.update(userDto, id);
     }
 
     @DeleteMapping("/{id}")

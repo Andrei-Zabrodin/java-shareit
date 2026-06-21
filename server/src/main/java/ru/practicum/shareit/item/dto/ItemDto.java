@@ -16,4 +16,5 @@ public class ItemDto {
     private Instant lastBooking;
     private Instant nextBooking;
     private Collection<CommentDto> comments;
+    private Long requestId;
 }

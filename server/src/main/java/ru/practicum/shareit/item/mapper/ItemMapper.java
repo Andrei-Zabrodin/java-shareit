@@ -4,8 +4,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.booking.model.BookingWithDatesOnly;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemShortDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemShort;
 
 import java.util.Collection;
 
@@ -22,4 +24,6 @@ public interface ItemMapper {
                                          Collection<Comment> comments);
 
     Item convertToEntity(ItemDto itemDto);
+
+    ItemShortDto convertToShortDto(ItemShort item);
 }

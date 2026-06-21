@@ -47,7 +47,7 @@ public class BookingController {
                                   @RequestBody BookingRequestDto bookingDto) {
         log.info("POST /bookings - Создание нового бронирования вещи с id {}, id создателя: {}",
                 bookingDto.getItemId(), userId);
-        log.debug("RRRRRR" + bookingDto.getStart().toString());
+
         return bookingService.save(userId, bookingDto);
     }
 

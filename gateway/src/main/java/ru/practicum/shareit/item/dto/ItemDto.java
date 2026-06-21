@@ -16,4 +16,6 @@ public class ItemDto {
 
     @NotNull(message = "Необходимо указать, доступна ли вещь!")
     private Boolean available;
+
+    private Long requestId;
 }

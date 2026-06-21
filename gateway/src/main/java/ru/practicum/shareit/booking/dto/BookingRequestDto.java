@@ -3,10 +3,12 @@ package ru.practicum.shareit.booking.dto;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 
 @Getter
+@Setter
 public class BookingRequestDto {
 
     @NotNull(message = "Необходимо указать дату начала бронирования вещи")

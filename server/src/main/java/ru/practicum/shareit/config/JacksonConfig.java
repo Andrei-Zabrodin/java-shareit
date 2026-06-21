@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,9 @@ import java.time.format.DateTimeFormatter;
 @Configuration
 public class JacksonConfig {
 
+    @Value("${client.timeZone}")
+    private String timeZone;
+
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
         return builder -> {
@@ -32,7 +36,7 @@ public class JacksonConfig {
 
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
                     LocalDateTime ldt = LocalDateTime.parse(dateStr, formatter);
-                    return ldt.atZone(ZoneId.of("UTC+3")).toInstant();
+                    return ldt.atZone(ZoneId.of(timeZone)).toInstant();
                 }
             });
 
@@ -40,7 +44,7 @@ public class JacksonConfig {
                 @Override
                 public void serialize(Instant value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-                            .withZone(ZoneId.of("UTC+3"));
+                            .withZone(ZoneId.of(timeZone));
                     gen.writeString(formatter.format(value));
                 }
             });

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.DuplicateObjectException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.user.service.UserService;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -86,6 +88,23 @@ class UserServiceIntegrationTest {
         User user = userRepository.findById(savedUser.getId()).orElseThrow();
         assertThat(user.getName()).isEqualTo(updateDto.getName());
         assertThat(user.getEmail()).isEqualTo(updateDto.getEmail());
+    }
+
+    @Test
+    void updateWithDuplicateEmailShouldThrowException() {
+        userService.save(userDto);
+
+        UserDto newUser = new UserDto();
+        newUser.setName("newUser");
+        newUser.setEmail("another@mail.ru");
+        UserDto savedUser = userService.save(newUser);
+
+        UserDto updateDto = new UserDto();
+        updateDto.setEmail("test@mail.ru");
+
+        assertThatThrownBy(() -> userService.update(updateDto, savedUser.getId()))
+                .isInstanceOf(DuplicateObjectException.class)
+                .hasMessageContaining("Адрес почты test@mail.ru уже используется!");
     }
 
     @Test

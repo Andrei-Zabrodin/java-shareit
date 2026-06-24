@@ -147,7 +147,8 @@ class ItemControllerTest {
     void getItemByIdShouldReturnItem() throws Exception {
         when(itemService.getItemById(ITEM_ID)).thenReturn(itemDto1);
 
-        mockMvc.perform(get("/items/{id}", ITEM_ID))
+        mockMvc.perform(get("/items/{id}", ITEM_ID)
+                        .header(USER_HEADER, USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemDto1.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemDto1.getName())))
@@ -162,10 +163,20 @@ class ItemControllerTest {
     void getItemByIdWithWrongIdShouldReturnError() throws Exception {
         when(itemService.getItemById(WRONG_ID)).thenThrow(IdNotFoundException.class);
 
-        mockMvc.perform(get("/items/{id}", WRONG_ID))
+        mockMvc.perform(get("/items/{id}", WRONG_ID)
+                        .header(USER_HEADER, USER_ID))
                 .andExpect(status().isNotFound());
 
         verify(itemService, times(1)).getItemById(WRONG_ID);
+        verifyNoMoreInteractions(itemService);
+    }
+
+    @Test
+    void getItemByIdWithoutUserHeaderShouldReturnError() throws Exception {
+        mockMvc.perform(get("/items/{id}", ITEM_ID))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, never()).getItems(anyLong());
         verifyNoMoreInteractions(itemService);
     }
 
@@ -178,6 +189,7 @@ class ItemControllerTest {
         when(itemService.getItemsBySearch(searchText)).thenReturn(items);
 
         mockMvc.perform(get("/items/search")
+                        .header(USER_HEADER, USER_ID)
                         .param("text", searchText))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -194,6 +206,7 @@ class ItemControllerTest {
         when(itemService.getItemsBySearch(searchText)).thenReturn(Arrays.asList());
 
         mockMvc.perform(get("/items/search")
+                        .header(USER_HEADER, USER_ID)
                         .param("text", searchText))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -204,10 +217,23 @@ class ItemControllerTest {
 
     @Test
     void getItemsBySearchWithNullTextShouldReturnError() throws Exception {
-        mockMvc.perform(get("/items/search"))
+        mockMvc.perform(get("/items/search")
+                        .header(USER_HEADER, USER_ID))
                 .andExpect(status().isBadRequest());
 
         verify(itemService, never()).getItemsBySearch(anyString());
+        verifyNoMoreInteractions(itemService);
+    }
+
+    @Test
+    void getItemBySearchWithoutUserHeaderShouldReturnError() throws Exception {
+        String searchText = "test";
+
+        mockMvc.perform(get("/items/search")
+                        .param("text", searchText))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, never()).getItems(anyLong());
         verifyNoMoreInteractions(itemService);
     }
 

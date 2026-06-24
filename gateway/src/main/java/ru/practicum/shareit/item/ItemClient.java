@@ -31,15 +31,15 @@ public class ItemClient extends BaseClient {
         return get("", userId);
     }
 
-    public ResponseEntity<Object> getItem(long itemId) {
-        return get("/" + itemId);
+    public ResponseEntity<Object> getItem(long userId, long itemId) {
+        return get("/" + itemId, userId);
     }
 
-    public ResponseEntity<Object> getItemsBySearch(String text) {
+    public ResponseEntity<Object> getItemsBySearch(long userId, String text) {
         Map<String, Object> parameters = Map.of(
                 "text", text
         );
-        return get("/search?text={text}", parameters);
+        return get("/search?text={text}", userId, parameters);
     }
 
     public ResponseEntity<Object> postItem(ItemDto requestDto, long userId) {

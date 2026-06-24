@@ -23,16 +23,18 @@ public class ItemController {
         return itemClient.getItems(ownerId);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getItemById(@PathVariable long id) {
-        log.info("GET /items/{} - Запрос вещи по id", id);
-        return itemClient.getItem(id);
+    @GetMapping("/{itemId}")
+    public ResponseEntity<Object> getItemById(@RequestHeader(USER_HEADER) long userId,
+                                              @PathVariable long itemId) {
+        log.info("GET /items/{} - Запрос вещи по id", itemId);
+        return itemClient.getItem(userId, itemId);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> getItemsBySearch(@RequestParam String text) {
+    public ResponseEntity<Object> getItemsBySearch(@RequestHeader(USER_HEADER) long userId,
+                                                   @RequestParam String text) {
         log.info("GET /items/search - Поиск доступных для аренды вещей по строке: '{}'", text);
-        return itemClient.getItemsBySearch(text);
+        return itemClient.getItemsBySearch(userId, text);
     }
 
     @PostMapping

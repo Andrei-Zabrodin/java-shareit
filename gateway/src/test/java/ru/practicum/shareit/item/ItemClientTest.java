@@ -63,13 +63,16 @@ class ItemClientTest {
     @Test
     void getItemShouldSendRequestWithItemId() {
         ResponseEntity<Object> expectedResponse = ResponseEntity.ok().build();
+        ArgumentCaptor<HttpEntity> httpEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
 
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Object.class)))
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), httpEntityCaptor.capture(), eq(Object.class)))
                 .thenReturn(expectedResponse);
 
-        ResponseEntity<Object> response = itemClient.getItem(ITEM_ID);
+        ResponseEntity<Object> response = itemClient.getItem(USER_ID, ITEM_ID);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(httpEntityCaptor.getValue().getHeaders().get("X-Sharer-User-Id"))
+                .containsExactly(String.valueOf(USER_ID));
         verify(restTemplate, times(1)).exchange(
                 eq("/" + ITEM_ID),
                 eq(HttpMethod.GET),
@@ -84,13 +87,16 @@ class ItemClientTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("text", searchText);
         ResponseEntity<Object> expectedResponse = ResponseEntity.ok().build();
+        ArgumentCaptor<HttpEntity> httpEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
 
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Object.class), anyMap()))
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), httpEntityCaptor.capture(), eq(Object.class), anyMap()))
                 .thenReturn(expectedResponse);
 
-        ResponseEntity<Object> response = itemClient.getItemsBySearch(searchText);
+        ResponseEntity<Object> response = itemClient.getItemsBySearch(USER_ID, searchText);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(httpEntityCaptor.getValue().getHeaders().get("X-Sharer-User-Id"))
+                .containsExactly(String.valueOf(USER_ID));
         verify(restTemplate, times(1)).exchange(
                 eq("/search?text={text}"),
                 eq(HttpMethod.GET),

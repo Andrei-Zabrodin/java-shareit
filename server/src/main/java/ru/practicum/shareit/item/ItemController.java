@@ -26,14 +26,16 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItemById(@PathVariable long id) {
+    public ItemDto getItemById(@RequestHeader(USER_HEADER) long userId,
+                               @PathVariable long id) {
         log.info("GET /items/{} - Запрос вещи по id", id);
 
         return itemService.getItemById(id);
     }
 
     @GetMapping("/search")
-    public Collection<ItemDto> getItemsBySearch(@RequestParam String text) {
+    public Collection<ItemDto> getItemsBySearch(@RequestHeader(USER_HEADER) long userId,
+                                                @RequestParam String text) {
         log.info("GET /items/search - Поиск доступных для аренды вещей по строке: '{}'", text);
 
         return itemService.getItemsBySearch(text);

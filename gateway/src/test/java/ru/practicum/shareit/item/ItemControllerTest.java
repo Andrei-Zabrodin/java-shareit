@@ -76,12 +76,20 @@ class ItemControllerTest {
     @Test
     void getItemByIdShouldReturnOk() throws Exception {
         ResponseEntity<Object> expectedResponse = ResponseEntity.ok().build();
-        when(itemClient.getItem(ITEM_ID)).thenReturn(expectedResponse);
+        when(itemClient.getItem(USER_ID, ITEM_ID)).thenReturn(expectedResponse);
 
-        mockMvc.perform(get("/items/{id}", ITEM_ID))
+        mockMvc.perform(get("/items/{id}", ITEM_ID)
+                        .header(USER_HEADER, USER_ID))
                 .andExpect(status().isOk());
 
-        verify(itemClient, times(1)).getItem(ITEM_ID);
+        verify(itemClient, times(1)).getItem(USER_ID, ITEM_ID);
+    }
+
+    @Test
+    void getItemByIdWithoutUserHeaderShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/items/{id}", ITEM_ID))
+                .andExpect(status().isBadRequest());
+        verify(itemClient, never()).getItem(USER_ID, ITEM_ID);
     }
 
     // ==================== GET /items/search ====================
@@ -90,13 +98,14 @@ class ItemControllerTest {
     void getItemsBySearchShouldReturnOk() throws Exception {
         String searchText = "test";
         ResponseEntity<Object> expectedResponse = ResponseEntity.ok().build();
-        when(itemClient.getItemsBySearch(searchText)).thenReturn(expectedResponse);
+        when(itemClient.getItemsBySearch(USER_ID, searchText)).thenReturn(expectedResponse);
 
         mockMvc.perform(get("/items/search")
+                        .header(USER_HEADER, USER_ID)
                         .param("text", searchText))
                 .andExpect(status().isOk());
 
-        verify(itemClient, times(1)).getItemsBySearch(searchText);
+        verify(itemClient, times(1)).getItemsBySearch(USER_ID, searchText);
     }
 
     @Test
@@ -104,7 +113,15 @@ class ItemControllerTest {
         mockMvc.perform(get("/items/search"))
                 .andExpect(status().isBadRequest());
 
-        verify(itemClient, never()).getItemsBySearch(anyString());
+        verify(itemClient, never()).getItemsBySearch(eq(USER_ID), anyString());
+    }
+
+    @Test
+    void getItemsBySearchWithoutUserHeaderShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/items/search"))
+                .andExpect(status().isBadRequest());
+
+        verify(itemClient, never()).getItemsBySearch(eq(USER_ID), anyString());
     }
 
     // ==================== POST /items ====================
